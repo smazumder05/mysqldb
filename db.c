@@ -87,9 +87,10 @@ void execute_statement(Statement* statement) {
 }
 
 MetaCommandResult exec_meta_data_cmd(Inputbuffer* ibuffer){
-    if(strcmp(ibuffer->buffer,".exit") == 0)
+    if(strcmp(ibuffer->buffer,".exit") == 0) {
+        close_buffer(ibuffer);
         exit(EXIT_SUCCESS);
-    else
+    } else
         return METADATA_CMD_UNRECOGNIZED;
 }
 
