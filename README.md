@@ -18,5 +18,5 @@ My very own implementation of sqlite3
 2. Command Processor or Interpreter
 3. Virtual Machine - that executes the prepared SQL statements
 4. Backend storage
-  - In memory
-  - Disk using b-trees
+    - In memory
+    - Disk using b-trees
