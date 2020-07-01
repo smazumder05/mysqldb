@@ -1,3 +1,6 @@
+CFLAGS=-Wall -g
+.PHONY
+
 all:
 	gcc -Wall db.c -o mysqlite
 clean:
