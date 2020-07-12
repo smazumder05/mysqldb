@@ -1,9 +1,9 @@
 CFLAGS=-Wall -g
-.PHONY
+MYSQL=./mysqlite
 
 all:
-	gcc -Wall db.c -o mysqlite
+	cc $(CFLAGS) db.c -o mysqlite
 clean:
 	rm -rf mysqlite
 run:
-	./mysqlite
+	$(MYSQL)

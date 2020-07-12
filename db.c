@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<stdint.h>
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
@@ -25,6 +26,7 @@ typedef enum {
 
 typedef enum {
     PREPARE_SUCCESS,
+    PREPARE_SYNTAX_ERROR,
     PREPARE_UNRECOGNIZED_STATEMENT
 } PrepareResult;
 
@@ -33,14 +35,37 @@ typedef enum {
     STATEMENT_INSERT
 } StatementType;
 
-typedef  struct {
-    StatementType type;
-} Statement;
 
+// Hardcoded table for now
+#define COLUMN_USERNAME_SIZE 32
+#define COLUMN_EMAIL_SIZE 32
+typedef struct {
+    uint32_t id;
+    char username[COLUMN_USERNAME_SIZE];
+    char email[COLUMN_EMAIL_SIZE];
+}Row;
+//*******************************
+typedef struct {
+    StatementType type;
+    Row row_to_insert;
+} Statement;
 
 void print_prompt() {
     printf("mysqlite-db > ");
 }
+
+/**
+ *  Create a compact representation of a Row
+ */
+#define  size_of_attribute(Struct,Attribute) sizeof(((Struct*)0)->Attribute)
+uint32_t ID_SIZE = size_of_attribute(Row,id);
+uint32_t USERNAME_SIZE = size_of_attribute(Row,username);
+uint32_t EMAIL_SIZE = size_of_attribute(Row,email);
+uint32_t ID_OFFSET = 0;
+uint32_t USERNAME_OFFSET =  ID_SIZE + ID_OFFSET;
+uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
+uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+
 
 /**
  * Processes input from the CLI
@@ -60,9 +85,22 @@ void close_buffer(Inputbuffer* ibuffer) {
     free(ibuffer);
 }
 
+/**
+ * Prepare statement accepts INSERT and SELECT. It parses the arguments of insert where tablename
+ * is hardcoded for now as
+ *  insert id name email
+ *  select  - just returns all rows in the hardcoded table
+ */
 PrepareResult prepare_statement(Inputbuffer* input_buffer, Statement* statement) {
     if (strncmp(input_buffer->buffer, "insert",6) == 0) {
         statement->type = STATEMENT_INSERT;
+        int  insert_args = sscanf(input_buffer->buffer, "insert %d %s %s",
+                                                                        &statement->row_to_insert.id,
+                                                                        &statement->row_to_insert.username,
+                                                                        &statement->row_to_insert.email);
+        if (insert_args < 3) {
+            return PREPARE_SYNTAX_ERROR;
+        }
         return PREPARE_SUCCESS;
     }
     if (strncmp(input_buffer->buffer, "select",6) == 0) {
@@ -114,6 +152,9 @@ int main(int argc, char *argv[] ) {
         switch(prepare_statement(mysql_buffer,&statement)) {
             case (PREPARE_SUCCESS):
                   break;
+            case (PREPARE_SYNTAX_ERROR):
+                  printf("Unrecognized statement '%s'.\n",mysql_buffer->buffer);
+                  continue;
             case (PREPARE_UNRECOGNIZED_STATEMENT):
                  printf("Unrecognized command: %s\n", mysql_buffer->buffer);
                  continue;
