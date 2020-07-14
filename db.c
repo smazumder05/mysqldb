@@ -58,13 +58,13 @@ void print_prompt() {
  *  Create a compact representation of a Row
  */
 #define  size_of_attribute(Struct,Attribute) sizeof(((Struct*)0)->Attribute)
-uint32_t ID_SIZE = size_of_attribute(Row,id);
-uint32_t USERNAME_SIZE = size_of_attribute(Row,username);
-uint32_t EMAIL_SIZE = size_of_attribute(Row,email);
-uint32_t ID_OFFSET = 0;
-uint32_t USERNAME_OFFSET =  ID_SIZE + ID_OFFSET;
-uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
-uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
+const uint32_t ID_SIZE = size_of_attribute(Row,id);
+const uint32_t USERNAME_SIZE = size_of_attribute(Row,username);
+const uint32_t EMAIL_SIZE = size_of_attribute(Row,email);
+const uint32_t ID_OFFSET = 0;
+const uint32_t USERNAME_OFFSET =  ID_SIZE + ID_OFFSET;
+const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
+const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
 
 /**
@@ -153,7 +153,7 @@ int main(int argc, char *argv[] ) {
             case (PREPARE_SUCCESS):
                   break;
             case (PREPARE_SYNTAX_ERROR):
-                  printf("Unrecognized statement '%s'.\n",mysql_buffer->buffer);
+                  printf("Syntax error: '%s'.\n",mysql_buffer->buffer);
                   continue;
             case (PREPARE_UNRECOGNIZED_STATEMENT):
                  printf("Unrecognized command: %s\n", mysql_buffer->buffer);
